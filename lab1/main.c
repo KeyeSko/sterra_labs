@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #pragma pack(push, 1)
 struct LocalFileHeader
@@ -47,26 +48,26 @@ int main(int argc, char *argv[]){
 
     FILE *fp = fopen(argv[1], "rb");
     if(fp == NULL){
-    	perror("main");
-	return 0;
+        perror("main");
+        return 0;
     }
     
     struct LocalFileHeader readFile;
 
     while((ch = fgetc(fp)) != EOF){
-    	for(int i = 0; i < 4; i++){
-	    if(ch != signature[i])
-	        break;
-	    ch = fgetc(fp);
-	    if(i == 3){
-		flag = 1;
-		fseek(fp, -5, SEEK_CUR);
-		fread(&readFile, sizeof(readFile), 1, fp);
-		fread(&fileName, readFile.filenameLength, 1, fp);
-		printf("fileName: %s\n", fileName);		
-		
-	    }
-	}
+        for(int i = 0; i < 4; i++){
+            if(ch != signature[i])
+                break;
+            ch = fgetc(fp);
+            if(i == 3){
+                flag = 1;
+                fseek(fp, -5, SEEK_CUR);
+                fread(&readFile, sizeof(readFile), 1, fp);
+                fread(fileName, readFile.filenameLength, 1, fp);
+                fileName[readFile.filenameLength] = 0;
+                printf("fileName: %s\n", fileName);
+            }
+        }
     }
 
     if(!flag)
