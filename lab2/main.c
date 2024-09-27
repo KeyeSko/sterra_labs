@@ -1,15 +1,22 @@
 #include <stdio.h>
 #include <string.h>
 
+enum {
+  UNKNOWN_TYPE = 0,
+  CP_1251,
+  KOI8_R,
+  ISO_8859_5,
+};
+
 int getEncodingType(char* encoding){
     if(strcmp(encoding, "CP-1251") == 0)
-	    return 1;
+      return CP_1251;
     if(strcmp(encoding, "KOI8-R") == 0)
-	    return 2;
+      return KOI8_R;
     if(strcmp(encoding, "ISO-8859-5") == 0)
-	    return 3;
-    return 0;
-}
+      return ISO_8859_5;
+    return UNKNOWN_TYPE;
+    }
 
 const int utf8_codes[][2] = {
     {0xD1, 0x8E}, // ю
@@ -53,18 +60,18 @@ void koi8rToUtf8(FILE* infp, FILE* outfp) {
         if (ch < 0x80) {
             fputc(ch, outfp);
         }
-	else{
-	    if(191 < ch && ch < 224){
+        else{
+            if(191 < ch && ch < 224){
                 fputc(utf8_codes[ch - 192][0], outfp);
                 fputc(utf8_codes[ch - 192][1], outfp);
-	    }
-	    else{
+            }
+            else{
                 fputc(208, outfp);
-		if(utf8_codes[ch-224][0] == 209)
+                if(utf8_codes[ch-224][0] == 209)
                     fputc(utf8_codes[ch - 224][1] + 32, outfp);
-		else
+                else
                     fputc(utf8_codes[ch - 224][1] - 32, outfp);
-	    }
+            }
         }
     }
 }
@@ -101,27 +108,27 @@ void iso88595ToUtf8(FILE* infp, FILE* outfp){
     int ch;
     while((ch = fgetc(infp)) != EOF){
 	if(ch < 160){
-	    fputc(ch, outfp);
-	}
+            fputc(ch, outfp);
+        }
         if(175 < ch && ch < 224){
-	    fputc(208, outfp);
-	    fputc(ch - 32, outfp);
-	    continue;
-	}
-	if(223 < ch && ch < 240){
-	    fputc(209, outfp);
-	    fputc(ch - 96, outfp);
-	}
-	if(ch == 161){
-	    fputc(208, outfp);
-	    fputc(129, outfp);
-	    continue;
-	}
-	if(ch == 241){
-	    fputc(209, outfp);
-	    fputc(145, outfp);
-	    continue;
-	}
+            fputc(208, outfp);
+            fputc(ch - 32, outfp);
+            continue;
+        }
+        if(223 < ch && ch < 240){
+            fputc(209, outfp);
+            fputc(ch - 96, outfp);
+        }
+        if(ch == 161){
+            fputc(208, outfp);
+            fputc(129, outfp);
+            continue;
+        }
+        if(ch == 241){
+            fputc(209, outfp);
+            fputc(145, outfp);
+            continue;
+        }
     }
 }
 
@@ -130,41 +137,43 @@ int main(int argc, char *argv[]){
 
     if(argc != 4){
         printf("Usage: ./main InputFile Encoding OutputFile\n");
-	printf("Encoding types: CP-1251, KOI8-R, ISO-8859-5\n");
+        printf("Encoding types: CP-1251, KOI8-R, ISO-8859-5\n");
+        return 1;
     }
 
     if((encType = getEncodingType(argv[2])) == 0){
         printf("Unknown encoding. Please enter one of these: CP-1251, KOI8-R, ISO-8859-5\n");
-	return 0;
+        return 1;
     }
 
 
     FILE *infp = fopen(argv[1], "rb");
     if(infp == NULL){
-    	perror("main");
-	return 0;
+        perror("main");
+        return 1;
     }
 
 
     FILE *outfp = fopen(argv[3], "wb");
     if(outfp == NULL){
-    	perror("main");
-	return 0;
+        perror("main");
+        return 1;
     }
 
     switch (encType) {
-        case 1:
-	    cp1251ToUtf8(infp, outfp);
-	    break;
-	case 2:
-	    koi8rToUtf8(infp, outfp);
-	    break;
-	case 3:
-	    iso88595ToUtf8(infp, outfp);
-	    break;
-
+        case CP_1251:
+            cp1251ToUtf8(infp, outfp);
+            break;
+        case KOI8_R:
+            koi8rToUtf8(infp, outfp);
+            break;
+        case ISO_8859_5:
+            iso88595ToUtf8(infp, outfp);
+            break;
     }
 
     fclose(infp);
     fclose(outfp);
+
+    return 0;
 }
