@@ -37,10 +37,10 @@ struct LocalFileHeader
 int main(int argc, char *argv[]){
     
     int signature[4] = { 0x50, 0x4b, 0x03, 0x04};
-    int ch;
+    int ch = 0;
     char fileName[255] = {0};
     int flag = 0;
-
+    int i = 0;
 
     if(argc == 1){
     	printf("Input filename\n");
@@ -54,19 +54,22 @@ int main(int argc, char *argv[]){
     
     struct LocalFileHeader readFile;
 
-    while((ch = fgetc(fp)) != EOF){
-        for(int i = 0; i < 4; i++){
-            if(ch != signature[i])
-                break;
-            ch = fgetc(fp);
-            if(i == 3){
+    while ((ch = fgetc(fp)) != EOF){
+        if (ch == signature[i]){
+            i++;
+            if (i == 4){
                 flag = 1;
-                fseek(fp, -5, SEEK_CUR);
-                fread(&readFile, sizeof(readFile), 1, fp);
-                fread(fileName, readFile.filenameLength, 1, fp);
+                i = 0;
+                fseek(fp, -4, SEEK_CUR);
+                if (1 != fread(&readFile, sizeof(readFile), 1, fp))
+                    return 0;
+                if (1 != fread(fileName, readFile.filenameLength, 1, fp))
+                    return 0;
                 fileName[readFile.filenameLength] = 0;
                 printf("fileName: %s\n", fileName);
             }
+        } else {
+            i = (ch == signature[0])? 1 : 0;
         }
     }
 
@@ -74,4 +77,5 @@ int main(int argc, char *argv[]){
         printf("File doesn't have zip\n");
 
     fclose(fp);
+    return 0;
 }
