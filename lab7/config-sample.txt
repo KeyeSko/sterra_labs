@@ -1,0 +1,2 @@
+file=/path/to/file
+socket=/path/to/unix_socket
