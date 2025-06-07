@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    FILE *file = fopen(argv[1], "rb");
+    FILE *file = fopen(argv[1], "r");
     if (!file) {
         perror("Error opening file");
         return 1;
