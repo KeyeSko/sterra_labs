@@ -1,4 +1,4 @@
 main
 *.o
 *.a
-config.txt
+*.zip
