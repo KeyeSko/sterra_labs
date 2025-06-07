@@ -111,7 +111,9 @@ int main(int argc, char *argv[]) {
             fclose(file);
             return 1;
         }
-        if (zip_end.diskNumber != 0 || zip_end.startDiskNumber != 0 || zip_end.numberCentralDirectoryRecord != zip_end.totalCentralDirectoryRecord) {
+        if (zip_end.diskNumber != 0 || zip_end.startDiskNumber != 0
+            || zip_end.numberCentralDirectoryRecord
+               != zip_end.totalCentralDirectoryRecord) {
             perror("Invalid EOCD values");
             fclose(file);
             return 1;
@@ -146,7 +148,9 @@ int main(int argc, char *argv[]) {
             filename[cd_header.filenameLength] = '\0';
             printf("%s\n", filename);
 
-            fseek(file, cd_header.extraFieldLength + cd_header.fileCommentLength, SEEK_CUR);
+            fseek(file,
+                  cd_header.extraFieldLength + cd_header.fileCommentLength,
+                  SEEK_CUR);
         }
     } else {
         printf("No zip archive found.\n");
