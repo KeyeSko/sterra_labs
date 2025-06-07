@@ -4,7 +4,6 @@
 #define ZIP_END_SIG 0x06054B50
 #define CD_FILE_HEADER_SIG 0x02014B50
 
-#pragma pack(push, 1)
 typedef struct {
     // Обязательная сигнатура, равна 0x06054b50
     uint32_t signature;
@@ -24,10 +23,8 @@ typedef struct {
     uint16_t commentLength;
     // Комментарий (длиной commentLength)
     //uint8_t *comment;
-} EOCD;
-#pragma pack(pop)
+} __attribute__((__packed__)) EOCD;
 
-#pragma pack(push, 1)
 typedef struct {
     // Обязательная сигнатура, равна 0x02014b50
     uint32_t signature;
@@ -69,8 +66,7 @@ typedef struct {
     //uint8_t *extraField;
     // Комментарий к файла (длиной fileCommentLength)
     //uint8_t *fileComment;
-} CentralDirectoryFileHeader;
-#pragma pack(pop)
+} __attribute__((__packed__)) CentralDirectoryFileHeader;
 
 int find_zip_end(FILE *file, long *end_offset) {
     fseek(file, -22, SEEK_END);
