@@ -1,12 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
 
 #define ZIP_END_SIG 0x06054B50
 #define CD_FILE_HEADER_SIG 0x02014B50
 
-#pragma pack(push, 1)
 typedef struct {
     // Обязательная сигнатура, равна 0x06054b50
     uint32_t signature;
@@ -26,12 +23,10 @@ typedef struct {
     uint16_t commentLength;
     // Комментарий (длиной commentLength)
     //uint8_t *comment;
-} EOCD;
-#pragma pack(pop)
+} __attribute__((__packed__)) EOCD;
 
-#pragma pack(push, 1)
 typedef struct {
-    // Обязательная сигнатура, равна 0x02014b50 
+    // Обязательная сигнатура, равна 0x02014b50
     uint32_t signature;
     // Версия для создания
     uint16_t versionMadeBy;
@@ -71,8 +66,7 @@ typedef struct {
     //uint8_t *extraField;
     // Комментарий к файла (длиной fileCommentLength)
     //uint8_t *fileComment;
-} CentralDirectoryFileHeader;
-#pragma pack(pop)
+} __attribute__((__packed__)) CentralDirectoryFileHeader;
 
 int find_zip_end(FILE *file, long *end_offset) {
     fseek(file, -22, SEEK_END);
@@ -98,7 +92,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    FILE *file = fopen(argv[1], "rb");
+    FILE *file = fopen(argv[1], "r");
     if (!file) {
         perror("Error opening file");
         return 1;
@@ -117,7 +111,9 @@ int main(int argc, char *argv[]) {
             fclose(file);
             return 1;
         }
-        if (zip_end.diskNumber != 0 || zip_end.startDiskNumber != 0 || zip_end.numberCentralDirectoryRecord != zip_end.totalCentralDirectoryRecord) {
+        if (zip_end.diskNumber != 0 || zip_end.startDiskNumber != 0
+            || zip_end.numberCentralDirectoryRecord
+               != zip_end.totalCentralDirectoryRecord) {
             perror("Invalid EOCD values");
             fclose(file);
             return 1;
@@ -152,7 +148,9 @@ int main(int argc, char *argv[]) {
             filename[cd_header.filenameLength] = '\0';
             printf("%s\n", filename);
 
-            fseek(file, cd_header.extraFieldLength + cd_header.fileCommentLength, SEEK_CUR);
+            fseek(file,
+                  cd_header.extraFieldLength + cd_header.fileCommentLength,
+                  SEEK_CUR);
         }
     } else {
         printf("No zip archive found.\n");
