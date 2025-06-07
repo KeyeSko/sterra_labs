@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
 
 #define ZIP_END_SIG 0x06054B50
 #define CD_FILE_HEADER_SIG 0x02014B50
