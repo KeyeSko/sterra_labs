@@ -29,7 +29,7 @@ typedef struct {
 
 #pragma pack(push, 1)
 typedef struct {
-    // Обязательная сигнатура, равна 0x02014b50 
+    // Обязательная сигнатура, равна 0x02014b50
     uint32_t signature;
     // Версия для создания
     uint16_t versionMadeBy;
